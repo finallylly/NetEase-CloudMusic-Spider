@@ -23,7 +23,5 @@
 
 
 
-## License
-
-RJ
+## References
 http://nearby.wang/s_51.html
