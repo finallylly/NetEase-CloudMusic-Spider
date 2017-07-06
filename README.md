@@ -1,16 +1,17 @@
-# netease-music-spider
+# NetEase-CloudMusic-Spider
 
 
 ## Introduction
-`netease-music-spider` is a sipder that you can find beautiful girlfiend or handsome boyfriend.
+`NetEase-CloudMusic-Spider` is a sipder that you can find beautiful girlfiend or handsome boyfriend.
 
 
 ## Source Code Structure
+- js/core.js
+- sql/create_sql.sql
 - spider_start.py     
 - comment.py
 - user.py
 - music_mysql.py
-- create.sql
 
 
 ## Usage method
