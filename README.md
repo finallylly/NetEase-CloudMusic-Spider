@@ -15,7 +15,7 @@
 
 ## Usage method
 
-1. Use `create.sql` to create sql database.
+1. Use `sql/create_sql.sql` to create sql database.
 2. Change `musci_mysql.py` database username and password.
 3. Add your favorite song ID to the `songs_name_data ` list.
 4. Run `spider_start.py`,and wait a few minutes.
@@ -26,3 +26,4 @@
 ## License
 
 RJ
+http://nearby.wang/s_51.html
