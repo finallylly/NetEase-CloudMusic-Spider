@@ -82,7 +82,8 @@ def get_comment(id):
                 user_name = json_comment['user']['nickname']
                 comment = json_comment['content']
                 # 添加评论的ID，名字以及评论到数据库中
-                music_mysql.insert_commnet(user_id, user_name, comment)
+                music_mysql.insert_commnet(user_id, id, user_name, comment)
+                print('song_id='+str(id))
                 print('id='+str(user_id))
                 print('user_name='+user_name).decode("utf8")
                 # print(':', end="")
