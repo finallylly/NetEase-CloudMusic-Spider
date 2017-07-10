@@ -29,15 +29,15 @@ user_data = 0
 def spider_start():
     print vm.comment_done
     # 遍历想要爬取的歌曲，并将其（id,name,comment）添加到user_comment数据中
-    for id in songs_name_data:
-        comment.get_comment(id, 10)
+    # for id in songs_name_data:
+    #     comment.get_comment(id, 10)
 
-    while 1:
-        # print vm.comment_done
-        if vm.comment_done==-1:
-            break
-        else:
-            pass
+    # while 1:
+    #     # print vm.comment_done
+    #     if vm.comment_done==-1:
+    #         break
+    #     else:
+    #         pass
 
     # 从user_comment数据库中获取用户的个人（id，name）
     global user_data
@@ -58,15 +58,16 @@ def spider_start():
 
 # 为线程定义一个函数
 def calculate(data):
-    for user in data:
+    for udata in data:
         vm.top_100_done += 1
-        uid = user['id']
-        song_id = user['song_id']
-        user_name = user['name']
+        uid = udata['id']
+        song_id = udata['song_id']
+        user_name = udata['name']
         if song_id==582670:
             user.get_user_music(uid, song_id, user_name)
-        if vm.top_100_done%30==0:
-            time.sleep(1)
+        # if vm.top_100_done%100==0:
+        #     print 'top_100_done='+str(vm.top_100_done)
+        #     time.sleep(1)
 
 if __name__ == '__main__':
     spider_start()
@@ -83,7 +84,6 @@ if __name__ == '__main__':
         print "Error: unable to start thread"
 
     while 1:
-        print len(user_data)
         if vm.top_100_done==len(user_data):
             print "===================================="
             print "top_100_done=" + str(vm.top_100_done)
