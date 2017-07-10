@@ -29,15 +29,15 @@ user_data = 0
 def spider_start():
     print vm.comment_done
     # 遍历想要爬取的歌曲，并将其（id,name,comment）添加到user_comment数据中
-    # for id in songs_name_data:
-    #     comment.get_comment(id, 10)
+    for id in songs_name_data:
+        comment.get_comment(id, 10)
 
-    # while 1:
-    #     # print vm.comment_done
-    #     if vm.comment_done==-1:
-    #         break
-    #     else:
-    #         pass
+    while 1:
+        # print vm.comment_done
+        if vm.comment_done==-1:
+            break
+        else:
+            pass
 
     # 从user_comment数据库中获取用户的个人（id，name）
     global user_data
