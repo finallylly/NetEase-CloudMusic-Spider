@@ -4,10 +4,14 @@ import comment
 import user
 import thread
 import time
+import varmain as vm
 
+import warnings
 import sys
 reload(sys)
+
 sys.setdefaultencoding('utf-8')
+warnings.filterwarnings("ignore")
 
 # 添加想要抓取的歌曲的ID
 songs_name_data = [582670]
@@ -21,35 +25,48 @@ for x in range(1,16):
     exec("data%s = []" %(x))
 tlen = len(tlist)
 
+user_data = 0
 def spider_start():
+    print vm.comment_done
     # 遍历想要爬取的歌曲，并将其（id,name,comment）添加到user_comment数据中
     # for id in songs_name_data:
-        # comment.get_comment(id)
-    # 从user_comment数据库中获取用户的个人（id，name）
+    #     comment.get_comment(id, 10)
 
+    # while 1:
+    #     # print vm.comment_done
+    #     if vm.comment_done==-1:
+    #         break
+    #     else:
+    #         pass
+
+    # 从user_comment数据库中获取用户的个人（id，name）
+    global user_data
     user_data = music_mysql.get_user_id_mysql()
     # 遍历得到的用户数据，并将其的（id，name，听歌排行中的前100首）歌添加到user_love_songs数据库中
-    
+
     count = 0
-    for user_data in user_data:
+    for udata in user_data:
         count = count+1
         for x in tlist:
-            exec("if %s==%s:data%s.append(user_data)" %(count%tlen,x%tlen,x))
+            exec("if %s==%s:data%s.append(udata)" %(count%tlen,x%tlen,x))
         
-        # uid = user_data['id']
-        # song_id = user_data['song_id']
-        # user_name = user_data['name']
+        # uid = udata['id']
+        # song_id = udata['song_id']
+        # user_name = udata['name']
         # if song_id==582670:
         #     user.get_user_music(uid, song_id, user_name)
 
 # 为线程定义一个函数
 def calculate(data):
-    for user_data in data:
-        uid = user_data['id']
-        song_id = user_data['song_id']
-        user_name = user_data['name']
+    for user in data:
+        vm.top_100_done += 1
+        uid = user['id']
+        song_id = user['song_id']
+        user_name = user['name']
         if song_id==582670:
             user.get_user_music(uid, song_id, user_name)
+        if vm.top_100_done%30==0:
+            time.sleep(1)
 
 if __name__ == '__main__':
     spider_start()
@@ -61,9 +78,16 @@ if __name__ == '__main__':
     try:
         for x in tlist:
             exec("thread.start_new_thread( calculate, (data%s, ) )" %(x))
-
+            pass
     except:
-       print "Error: unable to start thread"
+        print "Error: unable to start thread"
 
     while 1:
-       pass
+        print len(user_data)
+        if vm.top_100_done==len(user_data):
+            print "===================================="
+            print "top_100_done=" + str(vm.top_100_done)
+            print "===================================="
+            break
+        else:
+            pass

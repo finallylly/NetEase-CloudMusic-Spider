@@ -4,7 +4,9 @@ import base64
 import requests
 import json
 import music_mysql
+import thread
 import time
+import varmain as vm
 
 import sys
 reload(sys)
@@ -64,33 +66,51 @@ def crypt_api(id, offset):
 
 
 # 获取评论
-def get_comment(id):
+def get_comment(id, thread_count):
     try:
         offset = 0
         url, data = crypt_api(id, offset)
         json_text = get_json(url, data)
         json_dict = json.loads(json_text.decode("utf-8"))
         comments_sum = json_dict['total']
-        for i in range(0, comments_sum, 20):
-            offset = i
-            url, data = crypt_api(id, offset)
-            json_text = get_json(url, data)
-            json_dict = json.loads(json_text.decode("utf-8"))
-            json_comment = json_dict['comments']
-            for json_comment in json_comment:
-                user_id = json_comment['user']['userId']
-                user_name = json_comment['user']['nickname']
-                comment = json_comment['content']
-                # 添加评论的ID，名字以及评论到数据库中
-                music_mysql.insert_commnet(user_id, id, user_name, comment)
-                print('song_id='+str(id))
-                print('id='+str(user_id))
-                print('user_name='+user_name).decode("utf8")
-                # print(':', end="")
-                # print(comment)
-                print('已经添加到user_comment数据库中啦').decode("utf8")
-            time.sleep(1)
+
+        count = 0
+        while count<thread_count:
+            #线程启动
+            thread.start_new_thread( get_20comment, (id, count*20, comments_sum, 20*thread_count, ) )
+            count = count + 1
+        
     except Exception as e:
         print('出现错误啦~错误是:'.decode("utf8"), e)
         pass
 
+def get_20comment(id, begin, comments_sum, step):
+    for i in range(begin, comments_sum, step):
+
+        offset = i
+        url, data = crypt_api(id, offset)
+        json_text = get_json(url, data)
+        json_dict = json.loads(json_text.decode("utf-8"))
+        json_comment = json_dict['comments']
+        for json_comment in json_comment:
+            user_id = json_comment['user']['userId']
+            user_name = json_comment['user']['nickname']
+            comment = json_comment['content']
+            # 添加评论的ID，名字以及评论到数据库中
+            music_mysql.insert_commnet(user_id, id, user_name, comment)
+            # print('song_id='+str(id))
+            print('comment by:'+str(user_id))
+            # print('user_comment:'+user_name).decode("utf8")
+            # print(':', end="")
+            # print(comment)
+            # print('已经添加到user_comment数据库中啦').decode("utf8")
+        time.sleep(1)
+
+        #线程运行完成标志 vm.comment_done = -1
+        vm.comment_done += 20
+        print vm.comment_done
+        if abs(vm.comment_done-comments_sum)<=20:
+            vm.comment_done = -1
+            print "===================================="
+            print "comment_done=" + str(vm.comment_done)
+            print "===================================="

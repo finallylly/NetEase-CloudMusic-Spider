@@ -96,6 +96,6 @@ def get_user_music(uid, song_id, user_name):
         print('的用户已经添加到user_luve_songs数据库中啦~').decode("utf8")
     except KeyError:
         print('id='+str(uid))
-        print('的用户听歌排行不可查看~').decode("utf8")
+        # print('的用户听歌排行不可查看~').decode("utf8")
     except Exception as e:
         print('出现错误啦~错误是:'.decode("utf8"), e)
