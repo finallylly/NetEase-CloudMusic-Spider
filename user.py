@@ -4,11 +4,16 @@ import os, json
 import base64
 import music_mysql
 import pymysql
+import userinfo
 from Crypto.Cipher import AES
+from bs4 import BeautifulSoup
+
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
+
+_session = requests.session()
 
 # 由于网易云音乐歌曲评论采取AJAX填充的方式所以在HTML上爬不到，需要调用评论API，而API进行了加密处理，下面是相关解决的方法
 def aesEncrypt(text, secKey):
@@ -89,8 +94,11 @@ def get_user_music(uid, song_id, user_name):
             # print(songer_name)
             song = json_song_name + '---' + songer_name
             data.append(song)
+
+        #获取用户信息
+        info=userinfo.getUserInfo(uid)
         # 添加用户id、名字、以及喜欢的歌曲到数据库中
-        music_mysql.insert_user(uid, song_id, user_name, data=data)
+        music_mysql.insert_user(uid, song_id, user_name, info, data=data)
     except pymysql.err.IntegrityError:
         print('id='+str(uid))
         print('的用户已经添加到user_luve_songs数据库中啦~').decode("utf8")
