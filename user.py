@@ -95,8 +95,10 @@ def get_user_music(uid, song_id, user_name):
             song = json_song_name + '---' + songer_name
             data.append(song)
 
-        #获取用户信息
-        info=userinfo.getUserInfo(uid)
+        #获取用户信息 设置默认值 getUserInfo后面再补, 不然很容易爬到一半被网易云禁IP
+        info = {'sex':0, 'birthday':'', 'province':0, 'city':0, 'total':0, 'status':0}
+        # info=userinfo.getUserInfo(uid)
+
         # 添加用户id、名字、以及喜欢的歌曲到数据库中
         music_mysql.insert_user(uid, song_id, user_name, info, data=data)
     except pymysql.err.IntegrityError:

@@ -13,7 +13,8 @@ _session = requests.session()
 BASE_URL = 'http://music.163.com/user/home?id='
 
 def getUserInfo(uid=59986101):
-    info = {}
+    #初始化
+    info = {'sex':0, 'birthday':'', 'province':0, 'city':0, 'total':0, 'status':1}
     #url
     url = BASE_URL+str(uid);
     #获取内容
