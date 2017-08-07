@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
+import json
 import os
 from bs4 import BeautifulSoup
 
@@ -12,9 +13,14 @@ warnings.filterwarnings("ignore")
 BASE_URL = 'http://www.xicidaili.com/nn/'
 
 # Total_Page = 2290
-Total_Page = 2
+Total_Page = 2290
 
 headers = {'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Mobile Safari/537.36'}
+
+# proxy = 'http://27.211.105.206:8118'
+# proxies = {'http':proxy}
+
+req = requests.Session()
 
 #IP获取
 def getProxy():
@@ -22,7 +28,10 @@ def getProxy():
     fp = open('host.txt','w')
     while cur_page <= Total_Page:
         url = BASE_URL+str(cur_page)
-        s = requests.get(url,headers = headers)
+
+        # s = req.get(url, headers=headers, proxies=proxies, verify=False)
+        s = req.get(url, headers=headers)
+
         soup = BeautifulSoup(s.content)
         ips = soup.select('#ip_list tr')
         for i in ips[1:]:
@@ -37,8 +46,8 @@ def getProxy():
             except Exception as e :
                 print i.encode('GB18030')
                 print ('no ip !')
-        cur_page+=1
         print 'cur_page='+str(cur_page)
+        cur_page+=1
     fp.close()
 
     print 'done'
@@ -46,11 +55,11 @@ def getProxy():
 #IP测试
 def test_useful(ip, port):
     url = 'https://www.baidu.com'
-    proxy = 'http:\\' +  ip+ ':' + port
-    proxies = {'proxy':proxy}
+    proxy = 'http://' +  ip+ ':' + port
+    proxies = {'http':proxy}
     try :
-        s = requests.get(url, headers = headers, proxies = proxies)
-        if str(s)=='<Response [200]>':
+        s = req.get(url, headers=headers, proxies=proxies, verify=False)
+        if s.status_code==200:
             print s
             return True
         else:

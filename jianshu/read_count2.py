@@ -4,6 +4,7 @@
 import requests
 import threading
 import time
+import random
  
 # header
 headers = {'Referer': 'http://www.jianshu.com/p/1a7358890b15'}
@@ -32,14 +33,16 @@ def print_time(threadName, delay, counter):
     while counter:
         # time.sleep(delay)
         try:
-            response = requests.post(url, headers=headers, data=user_data)
+            response = requests.post(url, headers=headers, data=user_data, proxies=random.choice(proxies), verify=False)
+            print response
         except Exception as e:
             passes+=1
-            print 'pass:'+str(passes)
+            if passes%100==0:
+                print 'pass:'+str(passes)
 
         count+=1
         if count%100==0:
-            print count
+            print 'count:'+str(count)
 
         counter -= 1
 
@@ -51,22 +54,37 @@ def runThread():
         exec("thread%s.start()" %(x))
         # 添加线程到线程列表
         exec("threads.append(thread%s)" %(x))
-    
- 
-count = 0
-while count>=0:
-    t0 = time.time()
 
-    # 等待所有线程完成
-    for t in threads:
-        t.join()
+#获取IP
+def getIP():
+    fp = open('../proxy/ip.txt','r')
+    ips = fp.readlines()
+    proxies = list()
+    for p in ips:
+        ip =p.strip('\n').split('\t')
+        my_proxy = 'http://' +  ip[0] + ':' + ip[1]
+        proxy = {'http':my_proxy}
+        proxies.append(proxy)
+    return proxies
 
-    print "Exiting Main Thread"
-    t1 = time.time()
-    print "time used:"+str(t1-t0)
+if __name__ == '__main__':
 
-    print "Starting Main Thread"
-    print "Total:"+str(count*50000)+"\n"
-    count += 1
+    proxies = getIP()
 
-    runThread()
+    count = 0
+    while count>=0:
+        t0 = time.time()
+
+        # 等待所有线程完成
+        for t in threads:
+            t.join()
+
+        print "Exiting Main Thread"
+        t1 = time.time()
+        print "time used:"+str(t1-t0)
+
+        print "Starting Main Thread"
+        print "Total:"+str(count*50000)+"\n"
+        count += 1
+
+        runThread()
