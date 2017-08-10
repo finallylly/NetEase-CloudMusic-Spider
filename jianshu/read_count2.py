@@ -5,9 +5,18 @@ import requests
 import threading
 import time
 import random
+import logging
+
+#日志模块配置
+logging.basicConfig(level=logging.WARN, format='[%(levelname)8s]\t (%(threadName)10s)\t %(message)30s', filename='logger.log')
+
+req = requests.Session()
+req.keep_alive = False
+requests.adapters.DEFAULT_RETRIES = 0
+
  
 # header
-headers = {'Referer': 'http://www.jianshu.com/p/1a7358890b15'}
+headers = {'Referer': 'http://www.jianshu.com/p/1a7358890b15','Connection':'close'}
 # user_data
 user_data = {'uuid':'b3a9e7fd-f0e1-40ce-adb9-d0cb61796880'}
 # url
@@ -32,22 +41,25 @@ def print_time(threadName, delay, counter):
     global count,passes
     while counter:
         # time.sleep(delay)
+        
         try:
-            response = requests.post(url, headers=headers, data=user_data, proxies=random.choice(proxies), verify=False)
-            print response
+            response = req.post(url, headers=headers, data=user_data, proxies=random.choice(proxies), verify=False, timeout=2)
         except Exception as e:
             passes+=1
-            if passes%100==0:
-                print 'pass:'+str(passes)
 
         count+=1
-        if count%100==0:
+        if (count-passes)%10==0:
+            logging.warn('worker start：%s'%time.time())
             print 'count:'+str(count)
+            print 'pass:'+str(passes)
+            print 'success:'+str(count-passes)
+            print ''
 
         counter -= 1
 
+
 def runThread():
-    for x in xrange(1,500):
+    for x in xrange(1,20):
         # 创建新线程
         exec("thread%s = myThread(%s, 'Thread-%s', 1)" %(x,x,x))
         # 开启新线程
@@ -57,7 +69,7 @@ def runThread():
 
 #获取IP
 def getIP():
-    fp = open('../proxy/ip.txt','r')
+    fp = open('../proxy/jianshu.txt','r')
     ips = fp.readlines()
     proxies = list()
     for p in ips:
@@ -84,7 +96,7 @@ if __name__ == '__main__':
         print "time used:"+str(t1-t0)
 
         print "Starting Main Thread"
-        print "Total:"+str(count*50000)+"\n"
+        print "Total:"+str(count*2000)+"\n"
         count += 1
 
         runThread()
