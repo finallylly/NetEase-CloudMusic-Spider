@@ -6,11 +6,19 @@ import json
 import music_mysql
 import thread
 import time
+import random
 import varmain as vm
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
+
+sys.path.append('proxy')
+import ipMap
+
+req = requests.Session()
+req.keep_alive = False
+requests.adapters.DEFAULT_RETRIES = 0
 
 # headers
 headers = {
@@ -18,6 +26,8 @@ headers = {
     'Cookie': 'appver=1.5.0.75771;MUSIC_U=e954e2600e0c1ecfadbd06b365a3950f2fbcf4e9ffcf7e2733a8dda4202263671b4513c5c9ddb66f1b44c7a29488a6fff4ade6dff45127b3e9fc49f25c8de500d8f960110ee0022abf122d59fa1ed6a2;',
 }
 
+#代理IP
+proxies = ipMap.getIP('./proxy/music_163.txt')
 
 #获取params
 def get_params(first_param, forth_param):
@@ -47,7 +57,15 @@ def AES_encrypt(text, key, iv):
 
 # 获取json数据
 def get_json(url, data):
-    response = requests.post(url, headers=headers, data=data)
+    #确保代理爬虫正常
+    code = 0
+    while code!=200:
+        try:
+            response = req.post(url, headers=headers, data=data, proxies=random.choice(proxies), verify=False, timeout=3)
+            json.loads(response.content.decode("utf-8"))
+            code = response.status_code
+        except Exception as e:
+            print "comment error: proxy ip invalid | no json"
     return response.content
 
 

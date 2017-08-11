@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
 import requests
 import time
+import random
 from bs4 import BeautifulSoup
-import warnings
 
+import warnings
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 warnings.filterwarnings("ignore")
 
+sys.path.append('proxy')
+import ipMap
+
 _session = requests.session()
+_session = requests.Session()
+_session.keep_alive = False
+requests.adapters.DEFAULT_RETRIES = 0
+
+#代理IP
+proxies = ipMap.getIP('./proxy/music_163.txt')
+
 BASE_URL = 'http://music.163.com/user/home?id='
 
 def getUserInfo(uid=59986101):
@@ -17,8 +28,17 @@ def getUserInfo(uid=59986101):
     info = {'sex':0, 'birthday':'', 'province':0, 'city':0, 'total':0, 'status':1}
     #url
     url = BASE_URL+str(uid);
-    #获取内容
-    soup = BeautifulSoup(_session.get(url).content)
+    
+    #确保代理爬虫正常
+    code = 0
+    while code!=200:
+        try:
+            #获取内容
+            # response = _session.post(url, headers=headers, data=data, proxies=random.choice(proxies), verify=False, timeout=2)
+            soup = BeautifulSoup(_session.get(url, proxies=random.choice(proxies), verify=False, timeout=2).content)
+            code = response.status_code
+        except Exception as e:
+            print "userinfo error: proxy ip invalid | no json"
 
     content = soup.find('div', attrs={'class': 'g-bd'})
 

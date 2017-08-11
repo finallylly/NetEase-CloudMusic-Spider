@@ -5,15 +5,23 @@ import base64
 import music_mysql
 import pymysql
 import userinfo
+import random
 from Crypto.Cipher import AES
 from bs4 import BeautifulSoup
-
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+sys.path.append('proxy')
+import ipMap
+
 _session = requests.session()
+_session.keep_alive = False
+requests.adapters.DEFAULT_RETRIES = 0
+
+#代理IP
+proxies = ipMap.getIP('./proxy/music_163.txt')
 
 # 由于网易云音乐歌曲评论采取AJAX填充的方式所以在HTML上爬不到，需要调用评论API，而API进行了加密处理，下面是相关解决的方法
 def aesEncrypt(text, secKey):
@@ -62,9 +70,16 @@ def get_user_music(uid, song_id, user_name):
     data = []
     url = 'http://music.163.com/weapi/v1/play/record?csrf_token='
 
-    response = requests.post(url, headers=headers, data=user_data)
-    response = response.content
-    json_text= json.loads(response)
+    #确保代理爬虫正常
+    code = 0
+    while code!=200:
+        try:
+            response = _session.post(url, headers=headers, data=user_data, proxies=random.choice(proxies), verify=False, timeout=2)
+            json_text= json.loads(response.content)
+
+            code = response.status_code
+        except Exception as e:
+            print "user error: proxy ip invalid | no json"
 
     # print json.dumps(json_text, ensure_ascii=False).encode("GB18030")
     # print json.dumps(json_text, sort_keys=True, indent=4, ensure_ascii=False).encode("GB18030")
