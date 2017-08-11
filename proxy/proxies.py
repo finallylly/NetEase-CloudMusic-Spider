@@ -16,15 +16,14 @@ BASE_URL = 'http://www.xicidaili.com/wt/'
 
 URL_LIST = ['http://www.xicidaili.com/nn/','http://www.xicidaili.com/nt/','http://www.xicidaili.com/wt/']
 
-# Total_Page = 2290
-Total_Page = 2290
+Total_Page = 10
 
 headers = {
 'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Mobile Safari/537.36',
 'Connection':'close'
 }
 
-proxy = 'http://113.79.75.149:9797'
+proxy = 'http://144.217.188.52:80'
 proxies = {'http':proxy}
 
 req = requests.Session()
@@ -39,9 +38,9 @@ def getProxy():
         for BASE_URL in URL_LIST:
             url = BASE_URL+str(cur_page)
             try:
-                s = req.get(url, headers=headers, proxies=proxies, verify=False, timeout=2)
-                print s
+                s = req.get(url, headers=headers, proxies=proxies, verify=False, timeout=5)
                 # s = req.get(url, headers=headers)
+                print s
 
                 soup = BeautifulSoup(s.content)
                 ips = soup.select('#ip_list tr')
@@ -77,7 +76,7 @@ def test_useful(ip, port):
     proxy = 'http://' +  ip+ ':' + port
     proxies = {'http':proxy}
     try :
-        s = req.get(url, headers=headers, proxies=proxies, verify=False, timeout=5)
+        s = req.get(url, headers=headers, proxies=proxies, verify=False, timeout=2)
         if s.status_code==200:
             print s
             return True
