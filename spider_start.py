@@ -163,7 +163,7 @@ if __name__ == '__main__':
     BASE_SONG_ID = int(sys.argv[1])
     songs_name_data = [BASE_SONG_ID]
     if int(sys.argv[2])==1:
-        get_comment(0)  #评论起始页
+        get_comment(0)  #评论起始条数, 默认读取全部, 补数据可指定起始数
     
     if int(sys.argv[3])==1:
         split_uid(BASE_SONG_ID)

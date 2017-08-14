@@ -92,18 +92,18 @@ def get_comment(id, thread_count, begin=0):
         json_dict = json.loads(json_text.decode("utf-8"))
         comments_sum = json_dict['total']
 
-        count = begin
+        count = 0
         while count<thread_count:
             #线程启动
-            thread.start_new_thread( get_20comment, (id, count*20, comments_sum, 20*thread_count, ) )
+            thread.start_new_thread( get_20comment, (id, begin, count*20, comments_sum, 20*thread_count, ) )
             count = count + 1
         
     except Exception as e:
         print '出现错误啦~错误是:'.decode("utf8"), e
         pass
 
-def get_20comment(id, begin, comments_sum, step):
-    for i in range(begin, comments_sum, step):
+def get_20comment(id, pre_begin, begin, comments_sum, step):
+    for i in range(pre_begin+begin, comments_sum, step):
 
         offset = i
         url, data = crypt_api(id, offset)
@@ -127,7 +127,7 @@ def get_20comment(id, begin, comments_sum, step):
         #线程运行完成标志 vm.comment_done = -1
         vm.comment_done += 20
         print vm.comment_done
-        if abs(vm.comment_done-comments_sum)<=20:
+        if abs(pre_begin+vm.comment_done-comments_sum)<=20:
             vm.comment_done = -1
             print "===================================="
             print "comment_done=" + str(vm.comment_done)
