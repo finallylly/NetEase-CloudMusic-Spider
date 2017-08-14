@@ -74,12 +74,14 @@ def get_user_music(uid, song_id, user_name):
     code = 0
     while code!=200:
         try:
+            # response = _session.post(url, headers=headers, data=user_data)
             response = _session.post(url, headers=headers, data=user_data, proxies=random.choice(proxies), verify=False, timeout=2)
             json_text= json.loads(response.content)
 
             code = response.status_code
         except Exception as e:
             print "user error: proxy ip invalid | no json"
+
 
     # print json.dumps(json_text, ensure_ascii=False).encode("GB18030")
     # print json.dumps(json_text, sort_keys=True, indent=4, ensure_ascii=False).encode("GB18030")
@@ -100,7 +102,7 @@ def get_user_music(uid, song_id, user_name):
             length = len(ar)
             songer_name = ''
             for songer in range(0, length):
-                songer_name = songer_name + ar[songer]['name']
+                songer_name = songer_name + str(ar[songer]['name'])
                 # print(ar[songer]['name'], end="")
                 # if (songer != length - 1):
                 #     print('/', end="")
@@ -118,9 +120,11 @@ def get_user_music(uid, song_id, user_name):
         music_mysql.insert_user(uid, song_id, user_name, info, data=data)
     except pymysql.err.IntegrityError:
         print('id='+str(uid))
-        print('的用户已经添加到user_luve_songs数据库中啦~').decode("utf8")
+        print '的用户已经添加到user_luve_songs数据库中啦~'.decode("utf8")
     except KeyError:
+        #更新top100可见状态
+        music_mysql.setUnvisible(uid)
         print('id='+str(uid))
-        # print('的用户听歌排行不可查看~').decode("utf8")
+        print '的用户听歌排行不可查看~'.decode("utf8")
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e

@@ -35,23 +35,29 @@ def getUserInfo(uid=59986101):
         try:
             #获取内容
             # response = _session.post(url, headers=headers, data=data, proxies=random.choice(proxies), verify=False, timeout=2)
-            soup = BeautifulSoup(_session.get(url, proxies=random.choice(proxies), verify=False, timeout=2).content)
+            response = _session.get(url, proxies=random.choice(proxies), verify=False, timeout=2)
+            soup = BeautifulSoup(response.content)
+            content = soup.find('div', attrs={'class': 'g-bd'})
             code = response.status_code
         except Exception as e:
             print "userinfo error: proxy ip invalid | no json"
 
-    content = soup.find('div', attrs={'class': 'g-bd'})
+    # soup = BeautifulSoup(_session.get(url).content)
+    # content = soup.find('div', attrs={'class': 'g-bd'})
 
     # 性别
-    sex1 = content.find(id='j-name-wrap').find('i', attrs={'class': 'u-icn-01'})
-    sex2 = content.find(id='j-name-wrap').find('i', attrs={'class': 'u-icn-02'})
-    if sex1!=None:
-        info['sex']  = '男'
-    elif sex2!=None:
-        info['sex']  = '女'
-    else:
-        info['sex'] = 0
-    # print "sex="+str(info['sex'])
+    try:
+        sex1 = content.find(id='j-name-wrap').find('i', attrs={'class': 'u-icn-01'})
+        sex2 = content.find(id='j-name-wrap').find('i', attrs={'class': 'u-icn-02'})
+        if sex1!=None:
+            info['sex']  = '男'
+        elif sex2!=None:
+            info['sex']  = '女'
+        else:
+            info['sex'] = 0
+        # print "sex="+str(info['sex'])
+    except Exception as e:
+        print 'sex not set'
 
     #生日
     try:
@@ -76,9 +82,12 @@ def getUserInfo(uid=59986101):
         print 'area not set'
 
     #累计听歌数
-    total= content.find(id='rHeader').find('h4').string
-    info['total'] = total[4:-1]
-    # print info['total']
+    try:
+        total= content.find(id='rHeader').find('h4').string
+        info['total'] = total[4:-1]
+        # print info['total']
+    except Exception as e:
+        print 'total not set'
 
     return info
 

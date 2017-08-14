@@ -30,7 +30,7 @@ def insert_commnet(id, song_id, name, comment):
         # 提交到数据库执行
         db.commit()
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e
         # 如果发生错误则回滚
         db.rollback()
     # 关闭数据库连接
@@ -49,7 +49,7 @@ def up_info_mysql(auto_id, info):
         cursor.execute(sql)
         db.commit()
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e
         # 如果发生错误则回滚
         db.rollback()
     # 关闭数据库连接
@@ -77,24 +77,24 @@ def get_id_uid_mysql(song_id):
         db.commit()
         return user_data
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e
         # 如果发生错误则回滚
         db.rollback()
     # 关闭数据库连接
     db.close()
 
 # 从user_comment数据库中获取用户的个人（id，name）,并返回user_data列表
-def get_user_id_mysql():
+def get_user_id_mysql(song_id):
     user_data = []
     # Connect to the database
     db = pymysql.connect(**config)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
     # SQL 插入语句
-    sql = 'SELECT * FROM `user_comment` WHERE 1'
+    sql = 'SELECT * FROM `user_comment` WHERE `song_id`=%s and `top100_visible`=1'
     try:
         # 执行sql语句
-        cursor.execute(sql)
+        cursor.execute(sql, (song_id))
         for user in cursor:
             user_id_name = {'id': '0', 'name': '0'}
             id = user['id']
@@ -109,7 +109,30 @@ def get_user_id_mysql():
         db.commit()
         return user_data
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e
+        # 如果发生错误则回滚
+        db.rollback()
+    # 关闭数据库连接
+    db.close()
+
+def get_love_song_uid_mysql(song_id):
+    uids = set()
+    # Connect to the database
+    db = pymysql.connect(**config)
+    # 使用cursor()方法获取操作游标
+    cursor = db.cursor()
+    # SQL 插入语句
+    sql = 'SELECT `id` FROM `user_love_songs` WHERE `song_id`=%s' %(song_id)
+    try:
+        # 执行sql语句
+        cursor.execute(sql)
+        for data in cursor:
+            uids.add(data['id'])
+        # 提交到数据库执行
+        db.commit()
+        return uids
+    except Exception as e:
+        print '出现错误啦~错误是:'.decode("utf8"), e
         # 如果发生错误则回滚
         db.rollback()
     # 关闭数据库连接
@@ -130,15 +153,37 @@ def insert_user(id, song_id, name, info, data):
         db.commit()
         print('love of:'+str(id))
         # print('name='+name).decode("utf8")
-        # print('已经添加到user_love_songs数据中啦').decode("utf8")
+        # print '已经添加到user_love_songs数据中啦'.decode("utf8")
     except pymysql.err.IntegrityError:
         print('id='+str(id))
-        print('的用户已经添加到user_love_songs数据库中啦~').decode("utf8")
+        print '的用户已经添加到user_love_songs数据库中啦~'.decode("utf8")
     except IndexError:
+        #更新top100可见状态
+        setUnvisible(id)
         print('id='+str(id))
-        print('的用户听的歌并没有超过100首').decode("utf8")
+        print '的用户听的歌并没有超过100首'.decode("utf8")
     except Exception as e:
-        print('出现错误啦~错误是:'.decode("utf8"), e)
+        print '出现错误啦~错误是:'.decode("utf8"), e
+        # 如果发生错误则回滚
+        db.rollback()
+    # 关闭数据库连接
+    db.close()
+
+#更新top100可见状态
+def setUnvisible(uid):
+    # Connect to the database
+    db = pymysql.connect(**config)
+    # 使用cursor()方法获取操作游标
+    cursor = db.cursor()
+    # SQL 插入语句
+    sql = "UPDATE `user_comment` SET `top100_visible`=0 WHERE `id`=%s"
+    try:
+        # 执行sql语句
+        cursor.execute(sql, (uid))
+        # 提交到数据库执行
+        db.commit()
+    except Exception as e:
+        print '出现错误啦~错误是:'.decode("utf8"), e
         # 如果发生错误则回滚
         db.rollback()
     # 关闭数据库连接

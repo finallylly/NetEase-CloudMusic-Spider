@@ -30,12 +30,13 @@ for x in range(1,16):
 tlen = len(tlist)
 
 user_data = 0
+count = 0
 
-def get_comment():
+def get_comment(begin=0):
     print vm.comment_done
     # 遍历想要爬取的歌曲，并将其（id,name,comment）添加到user_comment数据中
     for id in songs_name_data:
-        comment.get_comment(id, 10)
+        comment.get_comment(id, 10, begin)
 
     while 1:
         # print vm.comment_done
@@ -44,18 +45,27 @@ def get_comment():
         else:
             pass
 #####################################################################################
-def split_uid():
+def split_uid(song_id):
     # 从user_comment数据库中获取用户的个人（id，name）
-    global user_data
-    user_data = music_mysql.get_user_id_mysql()
-    # 遍历得到的用户数据，并将其的（id，name，听歌排行中的前100首）歌添加到user_love_songs数据库中
+    global user_data, count
+    user_data = music_mysql.get_user_id_mysql(song_id)
+    #获取已存在love song用户ID
+    existUID = music_mysql.get_love_song_uid_mysql(song_id)
 
+    # 遍历得到的用户数据，并将其的（id，name，听歌排行中的前100首）歌添加到user_love_songs数据库中
     count = 0
     for udata in user_data:
+        #用户信息已入库 continue
+        if udata['id'] in existUID:
+            continue
+        else:
+            print udata['id']
+
         count = count+1
         for x in tlist:
             exec("if %s==%s:data%s.append(udata)" %(count%tlen,x%tlen,x))
-        
+    
+
         # uid = udata['id']
         # song_id = udata['song_id']
         # user_name = udata['name']
@@ -88,18 +98,19 @@ def get_top_100():
         print "Error: unable to start thread"
 
     while 1:
-        if vm.top_100_done==len(user_data):
+        if vm.top_100_done==count:
             print "===================================="
             print "top_100_done=" + str(vm.top_100_done)
             print "===================================="
             break
         else:
+            # print vm.top_100_done, len(user_data)
             pass
 
 #################################################################################################
 #数据分组
 def split_uinfo():
-    global user_data
+    global user_data, count
     user_data =  music_mysql.get_id_uid_mysql(BASE_SONG_ID)
     count = 0
     for udata in user_data:
@@ -129,7 +140,7 @@ def upinfo_thread_start():
         print "Error: unable to start thread"
 
     while 1:
-        if vm.userinfo_done==len(user_data):
+        if vm.userinfo_done==count:
             print "===================================="
             print "userinfo_done=" + str(vm.userinfo_done)
             print "===================================="
@@ -152,10 +163,10 @@ if __name__ == '__main__':
     BASE_SONG_ID = int(sys.argv[1])
     songs_name_data = [BASE_SONG_ID]
     if int(sys.argv[2])==1:
-        get_comment()
+        get_comment(0)  #评论起始页
     
     if int(sys.argv[3])==1:
-        split_uid()
+        split_uid(BASE_SONG_ID)
         get_top_100()
         
     if int(sys.argv[4])==1:
