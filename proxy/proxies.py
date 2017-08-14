@@ -71,7 +71,7 @@ def getProxy():
 def test_useful(ip, port):
     # url = 'https://www.baidu.com'
     # url = 'http://www.jianshu.com/p/1a7358890b15'
-    url = 'http://music.163.com'
+    url = 'http://music.163.com/user/home?id=59986101'
 
     proxy = 'http://' +  ip+ ':' + port
     proxies = {'http':proxy}
